@@ -135,7 +135,7 @@ function stubForWrongEnvironment() {
     }
 
     if (!_getNumberOfResults("operation system")) {
-        stdout(">>> Warning: Script is running outside the environment <<<");
+        stdout(">>> Script is running outside the environment! <<<");
     }
 
     return false;
@@ -338,7 +338,7 @@ function scanForObfuscations_NET() {
                 }
             }
 
-            if (!isAnsiString(sectionName) && !isStrangeSectionsPresent) {
+            if (!isAsciiString(sectionName) && !isStrangeSectionsPresent) {
                 isStrangeSectionsPresent = true;
             }
         }
@@ -1442,8 +1442,8 @@ function NetOpCodes() {
     this.volatile = "FE13"; // MSIL: 'volatile' - Subsequent pointer reference is volatile
 
     // ========== UTILITY OPCODES ==========
-    this._unknown = "**"; // Unknown opcode pattern
-    this._any = "??"; // Any single opcode pattern
+    this._unknown = "**"; // Unknown opcode pattern (any byte except 0x00)
+    this._any = "??"; // Any single byte pattern
 
     /**
      * Sets strict operand values for MSIL opcodes with variable operands.
@@ -1643,12 +1643,12 @@ function clearSectionName(sectionName) {
 
 
 /**
- * Checks if a given string consists only of ANSI printable characters (ASCII range 0x20 to 0x7E).
+ * Checks if a given string consists only of ASCII printable characters (ASCII range 0x20 to 0x7E).
  *
  * @param {string} inputString - The string to validate.
- * @returns {boolean} Returns true if the string contains only ANSI printable characters, otherwise false.
+ * @returns {boolean} Returns true if the string contains only ASCII printable characters, otherwise false.
  */
-function isAnsiString(inputString) {
+function isAsciiString(inputString) {
     // Type validation to prevent runtime errors
     if (!inputString || typeof inputString !== "string") {
         return String();
@@ -3290,7 +3290,7 @@ function scanForObfuscations_Native() {
             }
         }
 
-        if (!isAnsiString(sectionName) && !isStrangeSectionsPresent) {
+        if (!isAsciiString(sectionName) && !isStrangeSectionsPresent) {
             isStrangeSectionsPresent = true;
         }
     }
@@ -3374,27 +3374,6 @@ function scanForObfuscations_Native() {
     }
 
     if (exeInImports) options += (options ? " + " : String()) + "EXE in imports";
-
-
-
-
-    // Looks for sections whose names contain strange (or invalid) characters
-
-    var isInvalidImportsPresent = false;
-
-    const badImportChars = '=~!@#$%^&*()"№;%:?*():;,|\'`<> ';
-
-    for (var i = 0; i < PE.getNumberOfImports() && !isInvalidImportsPresent; i++) {
-        const libraryName = PE.getImportLibraryName(i).toLowerCase();
-
-        for (var l = 0; l < badImportChars.length && !isInvalidImportsPresent; l++) {
-            if (libraryName.indexOf(badImportChars[l]) !== -1) {
-                isInvalidImportsPresent = true;
-            }
-        }
-    }
-
-    if (isInvalidImportsPresent) options += (options ? " + " : String()) + "Invalid imports";
 
 
 
@@ -3728,6 +3707,48 @@ function scanForObfuscations_Native() {
     }
 
     if (isUnusedExceptionSectionPresent) options += (options ? " + " : String()) + "Exceptions directory empty";
+
+
+
+
+    // Check for strange exports (Non-ASCII names)
+
+    var isStrangeExportsPresent = false;
+
+    if (PE.getNumberOfExports() > 0) {
+        for (var i = 0; i < PE.getNumberOfExports() && !isStrangeExportsPresent; i++) {
+            if (!isAsciiString(PE.getExportFunctionName(i))) {
+                isStrangeExportsPresent = true;
+            }
+        }
+    }
+
+    if (isStrangeExportsPresent) options += (options ? " + " : String()) + "Strange exports";
+
+
+
+
+    // Looks for sections whose names contain strange (or invalid) characters
+
+    var isStrangeImportsPresent = false;
+
+    const badImportChars = '=~!@#$%^&*()"№;%:?*():;,|\'`<> ';
+
+    for (var i = 0; i < PE.getNumberOfImports() && !isStrangeImportsPresent; i++) {
+        const libraryName = PE.getImportLibraryName(i);
+
+        if (isAsciiString(libraryName)) {
+            for (var l = 0; l < badImportChars.length && !isStrangeImportsPresent; l++) {
+                if (!isAsciiString(libraryName) || libraryName.indexOf(badImportChars[l]) !== -1) {
+                    isStrangeImportsPresent = true;
+                }
+            }
+        } else if (libraryName.indexOf("MZ") !== 0) { // 'MZ' -> IAT corrupted
+            isStrangeImportsPresent = true;
+        }
+    }
+
+    if (isStrangeImportsPresent) options += (options ? " + " : String()) + "Strange imports";
 
 
 
