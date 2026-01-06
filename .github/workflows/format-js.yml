@@ -22,15 +22,7 @@ jobs:
         with:
           token: ${{ secrets. RELEASE_TOKEN }}
       
-      - name:  Setup Node.js
-        uses: actions/setup-node@v4
-        with:  
-          node-version: '20'
-      
-      - name: Install js-beautify
-        run: npm install -g js-beautify
-      
-      - name: Format JavaScript files in db directories
+      - name:  Format JavaScript files in db directories
         run: |
           find db db_custom db_extra -type f \
             !  -path '*/.vscode/*' \
@@ -51,19 +43,31 @@ jobs:
               if head -c 1000 "$file" 2>/dev/null | grep -qE '(function|var |if\s*\(|for\s*\(|return |includeScript)'; then
                 echo "Formatting:  $file"
                 
-                # Format with js-beautify (preserves line breaks)
-                js-beautify --replace --type js \
-                  --indent-size 4 \
-                  --preserve-newlines \
-                  --max-preserve-newlines 2 \
-                  --end-with-newline \
-                  "$file" || true
+                # Save original ending
+                if [ -s "$file" ] && [ "$(tail -c 1 "$file" | od -An -tx1 | tr -d ' ')" = "0a" ]; then
+                  HAS_NEWLINE=true
+                else
+                  HAS_NEWLINE=false
+                fi
+                
+                # Only fix: 
+                # 1. Remove trailing whitespace from each line
+                # 2. Convert tabs to 4 spaces for indentation
+                sed -i 's/[[:space:]]*$//' "$file"
+                sed -i 's/\t/    /g' "$file"
+                
+                # Restore original ending
+                if [ "$HAS_NEWLINE" = false ]; then
+                  perl -pi -e 'chomp if eof' "$file"
+                elif [ "$HAS_NEWLINE" = true ] && [ "$(tail -c 1 "$file" | od -An -tx1 | tr -d ' ')" != "0a" ]; then
+                  echo "" >> "$file"
+                fi
               fi
             done
       
       - name:  Check for changes
         id: check_changes
-        run:  |
+        run: |
           if git diff --quiet; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
@@ -71,10 +75,10 @@ jobs:
           fi
       
       - name:  Commit and push changes
-        if: steps.check_changes. outputs.has_changes == 'true'
+        if: steps. check_changes.outputs.has_changes == 'true'
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github. com"
-          git config --local user. name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add -A
           git commit -m "style: auto-format JavaScript files in db directories"
           git push
