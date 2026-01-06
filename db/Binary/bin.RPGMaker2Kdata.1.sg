@@ -114,7 +114,7 @@ function detect() {
             // if(!X.isHeuristicScan())
             return false;
         // else
-        // 	bad = bad.addIfNone('!badsig'); // easyRPG won't quit just because the sig is wrong! But we will, because there's not much more to detect it by
+        //     bad = bad.addIfNone('!badsig'); // easyRPG won't quit just because the sig is wrong! But we will, because there's not much more to detect it by
         i = readVarUInt(0xB); if (!isWithin(i[0], 1, 5)) return false; p = 0xB + i[0] + 1; len = i[1];
         title = ''; maps = [];
         for (idx = i = 0; p < X.Sz() && i < len;) {
@@ -161,7 +161,7 @@ function detect() {
             // if(!X.isHeuristicScan())
             return false;
         // else
-        // 	bad = bad.addIfNone('!badsig'); // easyRPG won't quit just because the sig is wrong! But we will, because there's not much more to detect it by
+        //     bad = bad.addIfNone('!badsig'); // easyRPG won't quit just because the sig is wrong! But we will, because there's not much more to detect it by
         var debug = -1, char = []; chars = [];
         function ret(p, t) { if (debug >= 1) _l2r('ldb', p, t); return false }
         for (idx = i = 0, p = 0xC; p < X.Sz(); i++) { // go over all chunks found

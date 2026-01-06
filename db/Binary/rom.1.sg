@@ -96,8 +96,8 @@ function detect() {
 
     // else if([0x1F,0x20].indexOf(X.U8(0) >= 0) &&
     //   (X.fSig(1,0x200,"929376..7702") > 0) || X.fSig(1,0x200,"9276..937702") > 0) { // quite a few ROMs mismatch it
-    // 	// 2560 is a pretty unique CPU, may be possible to statistically analyse the instructions and go from there
-    // 	sName = "Emerson Arcadia 2001 cartridge (.BIN)"; bDetected = true
+    //     // 2560 is a pretty unique CPU, may be possible to statistically analyse the instructions and go from there
+    //     sName = "Emerson Arcadia 2001 cartridge (.BIN)"; bDetected = true
     // }
 
     else if (X.c("F50400") && X.c("04", 0x800) && X.c("8383", 0x808) && F.Sz() == 0x1000) {
@@ -447,8 +447,8 @@ function detect() {
         if (!extIs('mgt')) sus++; //could be gzipped which removes the extension as far as DiE is concerned
         if (X.Sz() != 0xC8000) sus++; //in practice, only ds 80-cyl is seen around
         const fts = [/*0*/'erased', 'ZXBASIC', 'ZXnum.array', 'ZXstr.array', 'ZXcode', 'ZX48ksnap', 'ZXMD', 'ZXscr', 'special',
-		/*9*/'ZX128ksnap', 'Opentype', 'ZXexec', 'UNI-DOSdir', 'UNI-DOScreate', '14?', '15?', 'SAMBASIC', 'SAMnum.array',
-		/*18*/'SAMstr.array', 'SAMcode', 'SAMscr', 'MasterDOSdir', 'SAMDriverapp', 'SAMDriverbootstrap', 'EDOSNOMEN',
+        /*9*/'ZX128ksnap', 'Opentype', 'ZXexec', 'UNI-DOSdir', 'UNI-DOScreate', '14?', '15?', 'SAMBASIC', 'SAMnum.array',
+        /*18*/'SAMstr.array', 'SAMcode', 'SAMscr', 'MasterDOSdir', 'SAMDriverapp', 'SAMDriverbootstrap', 'EDOSNOMEN',
             'EDOSsys', 'EDOSovl', '27?', 'HDOSHdos', 'HDOSHdir', 'HDOSHdisk', 'HDOSHfree/Htmp'];
         if ((X.U8(0) & 0x3F) != 19 && charStat(X.readBytes(0xD2, 10), 1).indexOf('allasc') >= 0) {
             sam[0] += 10; label = X.SA(0xD2, 10).trim()
@@ -1372,8 +1372,8 @@ function detect() {
                 }
                 if (tp == 0) {
                     //_l2r('tap',p+2,X.readBytes(p+2,10)+':'
-                    //	+outArray(X.readBytes(p+2,10),16)
-                    //	+' -> '+decEncoding(X.readBytes(p+2,10),CPSpeccy))
+                    //    +outArray(X.readBytes(p+2,10),16)
+                    //    +' -> '+decEncoding(X.readBytes(p+2,10),CPSpeccy))
                     if (charStat(t = X.readBytes(p + 2, 10), 1).indexOf('allasc') < 0) { sus++; bad = bad.addIfNone('!nonASCII:' + decEncoding(t, CPSpeccy)) }
                     t = decEncoding(t, CPSpeccy).trim();
                     if (!t) if (X.U8(p + 1) < 3) return false; else { sus++; bad = bad.addIfNone('!emptyname') }
@@ -1398,9 +1398,9 @@ function detect() {
         }
 
         // if(extIs('bin'))
-        // 	if(X.c("FA33C08E") || X.c("FA33C08E",0x455E0)) { //doens't catch all
-        // 		_setResult("ROM","Palm OS disk image (.BIN)",'','')
-        // 	}
+        //     if(X.c("FA33C08E") || X.c("FA33C08E",0x455E0)) { //doens't catch all
+        //         _setResult("ROM","Palm OS disk image (.BIN)",'','')
+        //     }
 
         if (extIs('rom'))
             if ((X.c("4142") || X.c("4142", 0x4000) || X.c("41421040", 0x3C000)

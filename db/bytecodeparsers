@@ -169,7 +169,7 @@ function parseYM2151RegLog(p, len) {
         else if (r <= 0xDF) { if (x & 0x20) iC(); v[4]++; chinits[r & 7]++; } // DT2/D2R set
         else { v[4]++; chinits[r & 7]++; } // D1L/RR set
 
-        if(!confirmed) 
+        if(!confirmed)
             if(p > 0x1000)
                 if (notes < 20 || v[0] < 24 || v[1] < 24 || v[2] < 24 || v[3] < 24 || v[4] < 24)
                     return [BCInvalidFormat]; // false positives can be pretty long!

@@ -76,7 +76,7 @@ function detect() {
     if (appinfo && !isWithin(appinfo, 0x4E + reclen * numrec, X.Sz())
         || sortinfo && !isWithin(sortinfo, 0x4C + reclen * numrec, X.Sz())
         || appinfo && sortinfo && sortinfo < appinfo) {
-		/*debug('appinfo/sortinfo bad address');*/ return
+        /*debug('appinfo/sortinfo bad address');*/ return
     }
 
     if (sVersion != '') sVersion = tp_.appendS(sVersion, ' '); else sVersion = tp_;
